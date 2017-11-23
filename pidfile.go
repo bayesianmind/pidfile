@@ -21,6 +21,20 @@ func Remove(filename string) error {
 	return os.RemoveAll(filename)
 }
 
+// IsRunning returns true if the pidfile exists and is running
+func IsRunning(filename string) (bool, error) {
+	// Check for existing pid
+	pid, err := pidfileContents(filename)
+	if err != nil {
+		if os.IsNotExist(err) {
+			err = nil
+		}
+		return false, err
+	}
+
+	return pidIsRunning(pid), nil
+}
+
 // Write writes a pidfile, returning an error
 // if the process is already running or pidfile is orphaned
 func Write(filename string) error {

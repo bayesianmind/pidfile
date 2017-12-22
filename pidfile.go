@@ -44,7 +44,7 @@ func Write(filename string) error {
 func WriteControl(filename string, pid int, overwrite bool) error {
 	// Check for existing pid
 	oldpid, err := pidfileContents(filename)
-	if err != nil && !os.IsNotExist(err) {
+	if err != nil && !isNotFoundErr(err) {
 		return err
 	}
 
@@ -60,6 +60,13 @@ func WriteControl(filename string, pid int, overwrite bool) error {
 
 	// We're clear to (over)write the file
 	return ioutil.WriteFile(filename, []byte(fmt.Sprintf("%d\n", pid)), 0644)
+}
+func isNotFoundErr(err error) bool {
+	if os.IsNotExist(err) {
+		return true
+	}
+	// on some platforms we get this back from ioutil.ReadFile()
+	return strings.Contains(err.Error(), "no such file or directory")
 }
 
 func pidfileContents(filename string) (int, error) {

@@ -91,13 +91,14 @@ func pidIsRunning(pid int) bool {
 
 	err = process.Signal(syscall.Signal(0))
 
-	if err != nil && err.Error() == "no such process" {
+	switch {
+	case err == nil:
+		return true
+	case err.Error() == "no such process",
+		err.Error() == "os: process already finished",
+		err.Error() == "operation not permitted":
 		return false
+	default:
+		return true
 	}
-
-	if err != nil && err.Error() == "os: process already finished" {
-		return false
-	}
-
-	return true
 }

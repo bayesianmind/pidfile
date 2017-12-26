@@ -59,7 +59,11 @@ func WriteControl(filename string, pid int, overwrite bool) error {
 	}
 
 	// We're clear to (over)write the file
-	return ioutil.WriteFile(filename, []byte(fmt.Sprintf("%d\n", pid)), 0644)
+	err = ioutil.WriteFile(filename, []byte(fmt.Sprintf("%d\n", pid)), 0644)
+	if err != nil && strings.Contains(err.Error(), "no such file or directory") {
+		fmt.Printf("got unexpected not found error type=%t val:%+v\n", err, err)
+	}
+	return err
 }
 func isNotFoundErr(err error) bool {
 	if os.IsNotExist(err) {

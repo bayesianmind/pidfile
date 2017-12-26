@@ -16,7 +16,7 @@ func TestPidCreated(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	pidpathbase := filepath.Join(dir, "pid")
-	t.Run("nopidfile", func(t *testing.T) {
+	t.Run("noPidFile", func(t *testing.T) {
 		pidpath := pidpathbase + ".1"
 		isRunning, err := IsRunning(pidpath)
 		require.NoError(t, err)
@@ -33,7 +33,7 @@ func TestPidCreated(t *testing.T) {
 		assert.True(t, isRunning)
 	})
 
-	t.Run("stalepid", func(t *testing.T) {
+	t.Run("stalePid", func(t *testing.T) {
 		pidpath := pidpathbase + ".3"
 		err = WriteControl(pidpath, 999999, false)
 		require.NoError(t, err)
@@ -46,7 +46,7 @@ func TestPidCreated(t *testing.T) {
 		assert.Equal(t, pid, pidafter)
 	})
 
-	t.Run("runningotherpid", func(t *testing.T) {
+	t.Run("runningOtherPid", func(t *testing.T) {
 		pidpath := pidpathbase + ".4"
 		require.NoError(t, Write(pidpath))
 		pid, err := pidfileContents(pidpath)
@@ -56,6 +56,11 @@ func TestPidCreated(t *testing.T) {
 		pidafter, err := pidfileContents(pidpath)
 		require.NoError(t, err)
 		assert.Equal(t, pid, pidafter)
+	})
+
+	t.Run("parentDirDoesntExist", func(t *testing.T) {
+		pidpath := filepath.Join(pidpathbase, "nonexisting", "pid")
+		require.Error(t, Write(pidpath))
 	})
 
 
